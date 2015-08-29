@@ -89,17 +89,25 @@ def request(address, name, distance=0):
 	html = whiteSpaceDel(html)
 
 	# get Links:
-	for match in re.finditer(r'<a(?:.*)href="(.*?)"(?:.*)>(.*)</a>', html):
+	for match in re.finditer(r'<a(?:.*?)href="(.*?)"(?:.*?)>(.*?)</a>', html):
 		href = match.group(1)
 		inner = match.group(2) # here, Inner is Name. .. 
 
 		log('_[+]A link found: %s' % href , distance)
-		if re.match("^(?:http://)?(.*)(?:/.*)?" , href).group(1) != "www.bezanimbiroon.ir":
+		check = re.match("(?:http://)?(?:www\.)?(.*?)/.*" , href)
+		if check and (check.group(1) != "bezanimbiroon.ir"):
 			# Then its out of Target
+			log(check.group(1))
+			log('__[!] Out of Target',distance)
+			continue
+		check = re.match("(?:http://)?(?:www\.)(.*)" , href)
+		if check and (not check.group(1).startswith("bezanimbiroon.ir")):
+			# Then its out of Target
+			log(check.group(1))
 			log('__[!] Out of Target',distance)
 			continue
 
-		sleep(0.5) # sleep for 0.5 Sec
+		#sleep(0.5) # sleep for 0.5 Sec
 		if re.match("^(?:http://)?www.bezanimbiroon.ir/place/.*" , href):
 			# Then its a leaf!
 			log('__[+]Leaf Found.',distance)
