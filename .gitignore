@@ -1,3 +1,4 @@
-logs.txt
-Data.xml
 lib.sublime-workspace
+*.jpg
+*.xml
+*.txt

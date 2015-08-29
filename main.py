@@ -10,41 +10,22 @@ robots_txt = """User-agent: *Disallow: /resources/
 		Disallow: /_includes/
 		"""
 
+#
+# main: The Program starts Here...
+# log: Print log and save that to logs.txt
+# getRelativeAddress: Convert raw Address to Replative address
+# request: using DFS method to search the website
+# getData: extracts Data from a Leaf Node
+# whiteSpaceDel: Converts All white Spaces to " "
+#
 
 def main():
 	""" the Program starts Here. . ."""
-	if False:
-		html = """
-<ul style="left: 0px; top: 0px;">
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200018_7.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200018_7.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200018_6.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200018_6.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200018_5.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200018_5.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200019_4.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200019_4.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200019_3.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200019_3.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200019_2.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200019_2.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																							
-												<li oncontextmenu="return false;" class="gallerypic group1 cboxElement" style="width: 256.667px; height: 170px;" href="/_uploads/Gallery/gallery_3491/20150117200019_1.jpg" title=""><img src="/_uploads/Gallery/gallery_3491/20150117200019_1.jpg" alt="دخمه سنگی کافر کلی" oncontextmenu="return false;"></li>
-																						</ul>
-		"""
-		html = whiteSpaceDel(html)
-		regImg = r'<li.*?class="gallerypic group1 cboxElement".*?>.*?<img.*?src="(.*?)".*?>.*?</li>'
-		c = 0
-		for match in re.finditer(regImg, html):
-			src = match.group(1)
-			log("[*]Downloading %s..." % src )
-		return 0;
 
-
-	#xmlData = request("http://www.bezanimbiroon.ir", "DataBase")
 	log("[*] Starting....")
 
-	xmlData = getData("""http://www.bezanimbiroon.ir/place/%D8%AF%D8%AE%D9%85%D9%87-%D8%B3%D9%86%DA%AF%DB%8C-%DA%A9%D8%A7%D9%81%D8%B1-%DA%A9%D9%84%DB%8C/8874""" , "DataBase")
+	xmlData = request("http://www.bezanimbiroon.ir", "DataBase")
+	#xmlData = getData("""http://www.bezanimbiroon.ir/place/%D8%B1%D8%B3%D8%AA%D9%88%D8%B1%D8%A7%D9%86-%D8%A7%DB%8C%D8%AA%D8%A7%D9%84%DB%8C%D8%A7%DB%8C%DB%8C-%D8%B3%D9%86%D8%B3%D9%88/6692""" , "DataBase")
 
 	
 	log("[*]Writing Data.xml file...")
@@ -54,7 +35,7 @@ def main():
 
 	
 	log("[+]Finish...")
-	log("[+] :)-|<")
+	log("[+] :)")
 	log("[*] Closeing logs.txt...")
 	log.FILE.close()
 
@@ -81,6 +62,10 @@ from time import sleep
 def request(address, name, distance=0):
 	""" Using DFS method to Explore the site..."""
 	log('[+]Looking %s that named "%s"' % (address, name) , distance)
+	for url in request.Robots:
+		if getRelativeAddress(address).startswith(url):
+			log("_[x] Forbiden by robots.txt")
+
 	if getRelativeAddress(address) in request.list:
 		log('_[x]Repetitious... Returning.',distance)
 		return ""
@@ -114,7 +99,7 @@ def request(address, name, distance=0):
 			log('__[!] Out of Target',distance)
 			continue
 
-		#sleep(0.5) # sleep for 0.5 Sec
+		sleep(0.5) # sleep for 0.5 Sec
 		if re.match("^(?:http://)?www.bezanimbiroon.ir/place/.*" , href):
 			# Then its a leaf!
 			log('__[+]Leaf Found.',distance)
@@ -128,10 +113,21 @@ def request(address, name, distance=0):
 	ret += "</%s>" % name
 	return ret
 # Setting static variable for this function
-request.list = ['/', '/index.php']
+request.list = ['/', '/index.php',]
+request.Robots = [
+	# Robots.txt:
+	'/resources',
+	'/_resources',
+	'/hamdb',
+	'/watermarks',
+	'/_includes'
+]
 
 def getData(address, name , distance = 0):
 	""" Getting Data from a Leaf... """
+	#
+	# TODO: getting Google Maps Address...
+	#
 	if getRelativeAddress(address) in getData.list:
 		return ""
 
@@ -151,7 +147,7 @@ def getData(address, name , distance = 0):
 	html = whiteSpaceDel(html)
 
 
-	# Titr regular expression:
+	# Titr regular expression###################################
 	regTitr = r'<div class="locIntroTextTitr">(.*?)</div>'
 	match = re.search(regTitr, html)
 	Title = match.group(1)
@@ -173,9 +169,9 @@ def getData(address, name , distance = 0):
 	p.write(html)
 	p.close()
 
-	# Gallery regular expression:
+	# Gallery regular expression##################################
 	regImg = r'<li.*?class="gallerypic group1".*?>.*?<img.*?src="(.*?)".*?>.*?</li>'
-
+	ret += "\n<images>\n"
 	# setting Folder Name:
 	folderName = Title;
 	if folderName == "":
@@ -203,15 +199,16 @@ def getData(address, name , distance = 0):
 		img.write(imgFile)
 		img.close()
 		ret += "\n<img>%s/%s</img>\n" % (folderName, fileName)
-		log("[+]Downloaded Complite: %s" % src , distance)
+		log("[+]Done: %s" % src , distance)
+
+	ret += "</images>"
 
 
-
-
-	# Properties regular expression:
+	# Properties regular expression#################################
 	reg11 = r'<div id=[\'\"]Ltab1[\'\"]>.*<div.*>(.*)</div>.*<div class="OtherProperties">(.*)</div>.*</div>'
 	reg12 = r'<div class="OtherPropertiesRow.">(.*?)<img .*?>.*?</div>\s?<div class="OtherPropertiesRowContent">(.*?)</div>'
 
+	ret += "\n<Properties>\n"
 
 	match = re.search(reg11, html)
 	if not match:
@@ -230,14 +227,29 @@ def getData(address, name , distance = 0):
 		ret += "\n<%s>\n%s\n</%s>\n" % (match.group(1).strip(), match.group(2).strip(), match.group(1).strip())
 
 
+	ret += "\n</Properties>\n"
+	# Contact regular expression##########################################
 
-	# Feature regular expression:
+	regContact = r'<div class="contactInfoBodyCell">.*?<div.*?>(.*?)</div>(.*?)</div>'
+	ret += "\n<Contact>\n"
+	for match in re.finditer(regContact, html):
+		tagName = match.group(1).strip().replace(':','')
+		tagValue = match.group(2).strip()
+		ret += "\n<%s>%s</%s>\n" % (tagName, tagValue , tagName)
+	ret += "\n</Contact>\n"
+
+	# Routing regular expression##########################################
+
+	regRout = r'<div class="RouteRow.">.*?<div class="RouteRowTitr">(.*?)</div>.*?<div class="RouteRowText">(.*?)</div>.*?</div>'
+	ret += "\n<Routing>\n"
+	for match in re.finditer(regContact, html):
+		tagName = match.group(1).strip().replace(':','')
+		tagValue = match.group(2).strip()
+		ret += "\n<%s>%s</%s>\n" % (tagName, tagValue , tagName)
+	ret += "\n</Routing>\n"
+
+	# Feature regular expression##########################################
 	reg21 = r''
-
-	# Images regular expression:
-	reg31 = r''
-
-
 
 
 	# FInish
