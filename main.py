@@ -88,6 +88,7 @@ def request(address, name, distance=0):
 	log("__%s" % html[:20] , distance)
 	html = whiteSpaceDel(html)
 
+
 	# get Links:
 	for match in re.finditer(r'<a(?:.*?)href="(.*?)"(?:.*?)>(.*?)</a>', html):
 		href = match.group(1)
